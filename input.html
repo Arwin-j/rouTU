@@ -12,7 +12,7 @@
         .class-item { margin-bottom: 10px; padding: 10px; border: 1px solid #ddd; background: #fff; border-radius: 4px; }
     </style>
 </head>
-<script src="script.js"></script>
+    <script src="script.js"></script>
 <body>
     <h1>Class Schedule Router</h1>
 
@@ -76,7 +76,7 @@
             formData.append('type', inputType);
 
             try {
-                const response = await fetch('/Start Route', {
+                const response = await fetch('/process_schedule', {
                     method: 'POST',
                     body: formData // FormData handles file uploads and text
                 });
