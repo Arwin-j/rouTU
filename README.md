@@ -6,16 +6,27 @@ College navigation application that uses **Google Gemini** to process schedules,
 
 ## Implement the Code
 
-(Add your implementation steps here)
+python -m venv venv
+# Windows
+venv\Scripts\activate
+# macOS / Linux
+source venv/bin/activate
 
 ---
 
 ## Install Dependencies
 
-(Add your dependency installation steps here)
+pip install -r requirements.txt
 
 ---
 
 ## Configure Code
 
-(Add your configuration steps here)
+1. Run the Application
+Use uvicorn to start the FastAPI server:
+
+```bash
+cd backend
+
+python -m uvicorn main:app --reload
+```
