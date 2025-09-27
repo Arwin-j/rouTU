@@ -6,17 +6,25 @@ College navigation application that uses **Google Gemini** to process schedules,
 
 ## Implement the Code
 
+```bash
 python -m venv venv
+```
 # Windows
+```bash
 venv\Scripts\activate
+```
 # macOS / Linux
+```bash
 source venv/bin/activate
+```
 
 ---
 
 ## Install Dependencies
 
+```bash
 pip install -r requirements.txt
+```
 
 ---
 
