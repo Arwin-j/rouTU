@@ -29,18 +29,22 @@ class handler(BaseHTTPRequestHandler):
             input_type = data.get('type')
             if input_type == "text":
                 text_input = data.get("text_input", "")
-                locations, times = parse_schedule_with_gemini(input_text=text_input, input_type='text')
+                parsed_classes = parse_schedule_with_gemini(input_text=text_input, input_type='text')
 
                 classes = []
-                for loc, time in zip(locations, times):
+                for cls in parsed_classes:
+                    class_name = cls.get("class_name", "Class")
+                    location = cls.get("location", "")
+                    start_time = cls.get("start_time", "")
+                    end_time = cls.get("end_time", "")
                     classes.append({
-                        'class_name': 'Class',
-                        'days': None,
-                        'start_time': time.split('-')[0].strip() if '-' in time else time,
-                        'end_time': time.split('-')[1].strip() if '-' in time else '',
-                        'full_address': loc,
-                        'map_link': f'https://www.google.com/maps/search/{loc.replace(" ", "+")}'
+                        "class_name": class_name,
+                        "start_time": start_time,
+                        "end_time": end_time,
+                        "full_address": location,
+                        "map_link": f"https://www.google.com/maps/search/{location.replace(' ', '+')}"
                     })
+
 
                 self.send_response(200)
                 self.send_header('Content-Type', 'application/json')

@@ -15,12 +15,32 @@ def parse_schedule_with_gemini(file_path=None, input_text=None, input_type="text
 
     if input_type == "text" and input_text:
         parts.append(types.Part.from_text(
-            f"""The following text contains a class schedule. Extract each class's location and time.
-Return a list of dictionaries with keys 'location' and 'time'. Only output the JSON, nothing else.
+    f"""
+The following text contains a student class schedule. Extract each class's:
+
+- class name (e.g., CS101)
+- location (building name or address)
+- start and end times (in 12-hour format)
+
+Return as a JSON list of dictionaries with the keys: `class_name`, `location`, `start_time`, `end_time`.
+
+Example:
+[
+  {{
+    "class_name": "CS101",
+    "location": "Engineering Hall",
+    "start_time": "9:00 AM",
+    "end_time": "9:50 AM"
+  }},
+  ...
+]
+
+Only return the JSON. Do not include any other explanation.
 
 INPUT:
-{input_text}
+{text_input}
 """))
+
     elif input_type in ["image", "audio"] and file_path:
         mime_type, _ = mimetypes.guess_type(file_path)
         with open(file_path, "rb") as f:
@@ -50,17 +70,15 @@ INPUT:
     )
 
     # Extract and parse response text
+    # Extract and parse response text
     response_text = response.candidates[0].content.parts[0].text
     print("Gemini Response:\n", response_text)
 
-    # Try to safely parse JSON result
-    import json
     try:
         parsed = json.loads(response_text)
-        locations = [cls["location"] for cls in parsed]
-        times = [cls["time"] for cls in parsed]
-        return locations, times
+        return parsed  # ✅ Return a list of full class info
     except Exception as e:
         print("Failed to parse Gemini output:", e)
-        return [], []
+        return []
+
 
