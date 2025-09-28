@@ -1,4 +1,10 @@
-// Initialize MapLibre GL map
+// Define campus bounds (southwest and northeast corners)
+const campusBounds = new maplibregl.LngLatBounds(
+  [-75.162, 39.978], // Southwest corner (lng, lat)
+  [-75.150, 39.985]  // Northeast corner (lng, lat)
+);
+
+// Initialize MapLibre GL map with restricted bounds and zoom limits
 const map = new maplibregl.Map({
   container: 'map',
   style: 'https://basemaps.cartocdn.com/gl/positron-gl-style/style.json',
@@ -6,7 +12,10 @@ const map = new maplibregl.Map({
   zoom: 16,
   pitch: 60,
   bearing: -20,
-  antialias: true
+  antialias: true,
+  maxBounds: campusBounds, // Restrict panning to campus bounds
+  minZoom: 15,             // Minimum zoom level
+  maxZoom: 18              // Maximum zoom level
 });
 
 map.on('style.load', () => {
@@ -28,7 +37,6 @@ map.on('style.load', () => {
     });
   }
 });
-
 
 map.addControl(new maplibregl.NavigationControl());
 
@@ -55,7 +63,7 @@ refreshClassSelector();
 
 // Campus bounds check (simple rectangle)
 function isBuildingOnCampus(lat, lng) {
-  // Note: campusBounds order changed to [lat, lng] to match usage
+  // campusBounds coordinates as [lat, lng]
   const campusBounds = [[39.978, -75.162], [39.985, -75.150]];
   return lat >= campusBounds[0][0] && lat <= campusBounds[1][0] &&
          lng >= campusBounds[0][1] && lng <= campusBounds[1][1];
