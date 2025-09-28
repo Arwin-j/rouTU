@@ -7,20 +7,269 @@
 
   <!-- MapLibre GL JS -->
   <link href="https://unpkg.com/maplibre-gl@3.3.1/dist/maplibre-gl.css" rel="stylesheet" />
-  <link type="text/css" href="style.css" rel="stylesheet" />
   <script src="https://unpkg.com/maplibre-gl@3.3.1/dist/maplibre-gl.js"></script>
-  <script src="script.js" defer></script> <!-- Ensure script is loaded after HTML -->
   
   <!-- Auth0 SPA SDK -->
   <script src="https://cdn.auth0.com/js/auth0-spa-js/1.26/auth0-spa-js.production.js"></script>
 
-  <!-- Style for input form -->
   <style>
-      body { font-family: sans-serif; max-width: 800px; margin: 20px auto; padding: 20px; border: 1px solid #eee; }
-      .input-section { margin-bottom: 20px; padding: 15px; background: #f9f9f9; border-radius: 8px; }
-      .output-section { margin-top: 20px; padding: 15px; background: #e9e9e9; border-radius: 8px; }
-      button { padding: 10px 15px; margin-right: 10px; cursor: pointer; }
-      .class-item { margin-bottom: 10px; padding: 10px; border: 1px solid #ddd; background: #fff; border-radius: 4px; }
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #f8fafc;
+      color: #334155;
+    }
+
+    #header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    #header h1 {
+      font-size: 2rem;
+      font-weight: 700;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    }
+
+    #auth-nav a {
+      color: white;
+      text-decoration: none;
+      padding: 0.5rem 1rem;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-radius: 25px;
+      transition: all 0.3s ease;
+      backdrop-filter: blur(10px);
+    }
+
+    #auth-nav a:hover {
+      background: rgba(255,255,255,0.2);
+      border-color: rgba(255,255,255,0.6);
+    }
+
+    #menu-toggle {
+      display: none;
+      background: none;
+      border: 2px solid rgba(255,255,255,0.3);
+      color: white;
+      font-size: 1.2rem;
+      padding: 0.5rem;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    #map-container {
+      display: flex;
+      height: calc(100vh - 80px);
+    }
+
+    #sidebar {
+      width: 400px;
+      background: white;
+      padding: 1.5rem;
+      overflow-y: auto;
+      box-shadow: 4px 0 6px rgba(0, 0, 0, 0.1);
+      z-index: 1000;
+    }
+
+    .sidebar-section {
+      margin-bottom: 2rem;
+      padding: 1.5rem;
+      background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+      border-radius: 12px;
+      border: 1px solid #e2e8f0;
+    }
+
+    .sidebar-section h3 {
+      color: #1e293b;
+      margin-bottom: 1rem;
+      font-size: 1.2rem;
+      font-weight: 600;
+    }
+
+    .input-section, .output-section {
+      margin-bottom: 2rem;
+      padding: 1.5rem;
+      background: white;
+      border-radius: 12px;
+      border: 1px solid #e2e8f0;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    }
+
+    .input-section h2, .output-section h2 {
+      color: #1e293b;
+      margin-bottom: 1rem;
+      font-size: 1.1rem;
+      font-weight: 600;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+      color: #475569;
+    }
+
+    select, input[type="file"], textarea {
+      width: 100%;
+      padding: 0.75rem;
+      border: 2px solid #e2e8f0;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      transition: border-color 0.3s ease;
+      background: white;
+    }
+
+    select:focus, input[type="file"]:focus, textarea:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    button {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      margin-top: 1rem;
+      margin-right: 0.5rem;
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(102, 126, 234, 0.3);
+    }
+
+    button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .class-item {
+      margin-bottom: 1rem;
+      padding: 1rem;
+      border: 1px solid #e2e8f0;
+      background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+      border-radius: 8px;
+      transition: all 0.3s ease;
+    }
+
+    .class-item:hover {
+      border-color: #667eea;
+      box-shadow: 0 2px 8px rgba(102, 126, 234, 0.1);
+    }
+
+    .class-item strong {
+      color: #1e293b;
+      font-size: 1.1rem;
+    }
+
+    .class-item a {
+      color: #667eea;
+      text-decoration: none;
+    }
+
+    .class-item a:hover {
+      text-decoration: underline;
+    }
+
+    #map {
+      flex: 1;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 1.2rem;
+    }
+
+    #error-popup {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: #ef4444;
+      color: white;
+      padding: 1rem;
+      border-radius: 8px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      z-index: 10000;
+      transition: all 0.3s ease;
+    }
+
+    #error-popup.hidden {
+      display: none;
+    }
+
+    #loadingIndicator {
+      color: #667eea;
+      font-weight: 500;
+      margin-left: 0.5rem;
+    }
+
+    .success-message {
+      color: #059669;
+      background: #dcfce7;
+      padding: 0.75rem;
+      border-radius: 8px;
+      border: 1px solid #bbf7d0;
+      margin-top: 1rem;
+    }
+
+    .error-message {
+      color: #dc2626;
+      background: #fef2f2;
+      padding: 0.75rem;
+      border-radius: 8px;
+      border: 1px solid #fecaca;
+      margin-top: 1rem;
+    }
+
+    @media (max-width: 768px) {
+      #menu-toggle {
+        display: block;
+      }
+
+      #auth-nav {
+        display: none;
+      }
+
+      #map-container {
+        flex-direction: column;
+      }
+
+      #sidebar {
+        width: 100%;
+        height: 50vh;
+      }
+
+      #map {
+        height: 50vh;
+      }
+    }
+
+    /* Loading animation */
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    .loading {
+      animation: pulse 2s infinite;
+    }
   </style>
 </head>
 
@@ -48,7 +297,6 @@
         <button id="route-btn" aria-label="Plan route to selected class">Show Route</button>
       </div>
 
-      <!-- Input Section from input.html -->
       <div class="input-section">
         <h2>Input Your Schedule</h2>
         <form id="scheduleForm">
@@ -56,18 +304,16 @@
             <label for="imageUpload">Upload Image:</label>
             <input type="file" id="imageUpload" name="file" accept="image/*">
           </div>
-          <div style="margin-top: 10px;">
+          <div style="margin-top: 1rem;">
             <label for="audioUpload">Upload Audio:</label>
             <input type="file" id="audioUpload" name="file" accept="audio/*">
           </div>
-          <div style="margin-top: 10px;">
-            <label for="textInput">Enter Text Schedule:</label><br>
-            <textarea id="textInput" name="text_input" rows="5" cols="50" placeholder="e.g., Calculus I M,W,F 9:00 AM - 9:50 AM MATH 201"></textarea>
+          <div style="margin-top: 1rem;">
+            <label for="textInput">Enter Text Schedule:</label>
+            <textarea id="textInput" name="text_input" rows="5" placeholder="e.g., Calculus I M,W,F 9:00 AM - 9:50 AM MATH 201"></textarea>
           </div>
-          <div style="margin-top: 20px;">
-            <button type="submit">Process Schedule</button>
-            <span id="loadingIndicator" style="display:none;">Processing...</span>
-          </div>
+          <button type="submit">Process Schedule</button>
+          <span id="loadingIndicator" style="display:none;" class="loading">Processing...</span>
         </form>
       </div>
 
@@ -79,78 +325,121 @@
       </div>
     </div>
 
-    <!-- Map Container -->
-    <div id="map" aria-label="Map view of the campus" role="application"></div>
+    <div id="map" aria-label="Map view of the campus" role="application">
+      <div style="text-align: center;">
+        <h3>Interactive Campus Map</h3>
+        <p style="margin-top: 0.5rem; opacity: 0.8;">Map functionality coming soon...</p>
+      </div>
+    </div>
   </div>
 
-  <!-- Error Message Popup -->
   <div id="error-popup" class="hidden" aria-live="assertive" role="alert">
     <p>Only enter locations on main campus. Go Owls!</p>
   </div>
 
   <script>
+    // Mock schedule processing for demo purposes
+    // In production, this would connect to your backend API
     document.getElementById('scheduleForm').addEventListener('submit', async function(event) {
-        event.preventDefault(); // Prevent default form submission
+        event.preventDefault();
 
         const form = event.target;
-        const formData = new FormData();
         const loadingIndicator = document.getElementById('loadingIndicator');
         const resultsDiv = document.getElementById('results');
 
+        // Show loading state
         loadingIndicator.style.display = 'inline';
-        resultsDiv.innerHTML = '<p>Processing your schedule...</p>';
+        resultsDiv.innerHTML = '<p class="loading">Processing your schedule...</p>';
 
-        let inputType;
-        if (form.elements['imageUpload'].files.length > 0) {
-            inputType = 'image';
-            formData.append('file', form.elements['imageUpload'].files[0]);
-        } else if (form.elements['audioUpload'].files.length > 0) {
-            inputType = 'audio';
-            formData.append('file', form.elements['audioUpload'].files[0]);
-        } else if (form.elements['textInput'].value.trim() !== '') {
-            inputType = 'text';
-            formData.append('text_input', form.elements['textInput'].value.trim());
-        } else {
-            alert('Please provide an image, audio, or text input.');
-            loadingIndicator.style.display = 'none';
-            resultsDiv.innerHTML = '<p>No input provided.</p>';
-            return;
-        }
-        formData.append('type', inputType);
+        // Simulate processing delay
+        await new Promise(resolve => setTimeout(resolve, 2000));
 
+        // Mock processing logic
         try {
-            const response = await fetch('/process_schedule', {
-                method: 'POST',
-                body: formData // FormData handles file uploads and text
+            let inputProvided = false;
+            let inputType = '';
+
+            if (form.elements['imageUpload'].files.length > 0) {
+                inputProvided = true;
+                inputType = 'image';
+            } else if (form.elements['audioUpload'].files.length > 0) {
+                inputProvided = true;
+                inputType = 'audio';
+            } else if (form.elements['textInput'].value.trim() !== '') {
+                inputProvided = true;
+                inputType = 'text';
+            }
+
+            if (!inputProvided) {
+                resultsDiv.innerHTML = '<div class="error-message">Please provide an image, audio, or text input.</div>';
+                return;
+            }
+
+            // Mock successful processing
+            const mockClasses = [
+                {
+                    class_name: 'Computer Science 101',
+                    days: ['Monday', 'Wednesday', 'Friday'],
+                    start_time: '9:00 AM',
+                    end_time: '9:50 AM',
+                    full_address: 'Engineering Hall, Room 201',
+                    map_link: '#'
+                },
+                {
+                    class_name: 'Mathematics 202',
+                    days: ['Tuesday', 'Thursday'],
+                    start_time: '11:00 AM',
+                    end_time: '12:15 PM',
+                    full_address: 'Science Center, Room 105',
+                    map_link: '#'
+                }
+            ];
+
+            resultsDiv.innerHTML = '<div class="success-message">Schedule processed successfully using ' + inputType + ' input!</div>';
+            
+            mockClasses.forEach(cls => {
+                resultsDiv.innerHTML += `
+                    <div class="class-item">
+                        <strong>${cls.class_name}</strong><br>
+                        Days: ${cls.days.join(', ')}<br>
+                        Time: ${cls.start_time} - ${cls.end_time}<br>
+                        Location: ${cls.full_address} (<a href="${cls.map_link}">View on Map</a>)
+                    </div>
+                `;
             });
 
-            const data = await response.json();
-
-            if (data.success) {
-                resultsDiv.innerHTML = ''; // Clear previous results
-                if (data.classes.length > 0) {
-                    data.classes.forEach(cls => {
-                        resultsDiv.innerHTML += `
-                            <div class="class-item">
-                                <strong>${cls.class_name}</strong><br>
-                                Days: ${cls.days ? cls.days.join(', ') : 'N/A'}<br>
-                                Time: ${cls.start_time} - ${cls.end_time}<br>
-                                Location: ${cls.full_address} (<a href="${cls.map_link}" target="_blank">View on Map</a>)
-                            </div>
-                        `;
-                    });
-                } else {
-                    resultsDiv.innerHTML = '<p>No classes found in the provided schedule.</p>';
-                }
-            } else {
-                resultsDiv.innerHTML = `<p style="color: red;">Error: ${data.error || 'Something went wrong.'}</p>`;
-            }
         } catch (error) {
-            console.error('Fetch error:', error);
-            resultsDiv.innerHTML = `<p style="color: red;">Network error or server issue: ${error.message}</p>`;
+            console.error('Processing error:', error);
+            resultsDiv.innerHTML = `<div class="error-message">Error processing schedule: ${error.message}</div>`;
         } finally {
             loadingIndicator.style.display = 'none';
         }
+    });
+
+    // Route button functionality
+    document.getElementById('route-btn').addEventListener('click', function() {
+        const selector = document.getElementById('class-selector');
+        const selectedValue = selector.value;
+        
+        if (selectedValue === '') {
+            alert('Please select a class first.');
+            return;
+        }
+        
+        const selectedText = selector.options[selector.selectedIndex].text;
+        alert(`Route to ${selectedText} would be shown on the map. Map functionality coming soon!`);
+    });
+
+    // Menu toggle for mobile
+    document.getElementById('menu-toggle').addEventListener('click', function() {
+        const sidebar = document.getElementById('sidebar');
+        sidebar.style.display = sidebar.style.display === 'none' ? 'block' : 'none';
+    });
+
+    // Auth button functionality (placeholder)
+    document.getElementById('auth-btn').addEventListener('click', function(e) {
+        e.preventDefault();
+        alert('Authentication feature coming soon!');
     });
   </script>
 </body>
