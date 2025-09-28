@@ -7,331 +7,455 @@
 
   <!-- MapLibre GL CSS -->
   <link href="https://unpkg.com/maplibre-gl@3.3.1/dist/maplibre-gl.css" rel="stylesheet" />
+  <script src="https://unpkg.com/maplibre-gl@3.3.1/dist/maplibre-gl.js"></script>
+
+  <!-- Auth0 SPA SDK -->
+  <script src="https://cdn.auth0.com/js/auth0-spa-js/1.26/auth0-spa-js.production.js"></script>
 
   <style>
-    body, html { margin:0; padding:0; height:100%; font-family: Arial, sans-serif; }
-    #map { position: absolute; top:0; bottom:0; width: 60%; }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #f8fafc;
+      color: #334155;
+    }
+
+    #header {
+      background: linear-gradient(135deg, #9E1B34 0%, #722F37 100%);
+      color: white;
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    #header h1 {
+      font-size: 2rem;
+      font-weight: 700;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    }
+
+    #auth-nav a {
+      color: white;
+      text-decoration: none;
+      padding: 0.5rem 1rem;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-radius: 25px;
+      transition: all 0.3s ease;
+      backdrop-filter: blur(10px);
+    }
+
+    #auth-nav a:hover {
+      background: rgba(255,255,255,0.2);
+      border-color: rgba(255,255,255,0.6);
+    }
+
+    #menu-toggle {
+      display: none;
+      background: none;
+      border: 2px solid rgba(255,255,255,0.3);
+      color: white;
+      font-size: 1.2rem;
+      padding: 0.5rem;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    #map-container {
+      display: flex;
+      height: calc(100vh - 80px);
+    }
+
     #sidebar {
-      position: absolute; top:0; bottom:0; right:0; width:40%; overflow-y: auto;
-      padding: 10px; background: #f8f8f8; border-left: 1px solid #ddd;
+      width: 450px;
+      background: white;
+      padding: 1rem;
+      overflow-y: auto;
+      box-shadow: 4px 0 6px rgba(0, 0, 0, 0.1);
+      z-index: 1000;
     }
-    #loadingIndicator { display:none; }
-    .error-message { color: red; }
-    .success-message { color: green; }
-    .class-item { margin-bottom: 15px; border-bottom: 1px solid #ccc; padding-bottom: 10px; }
-    .route-display { margin-top: 5px; font-style: italic; }
+
+    .sidebar-section {
+      margin-bottom: 1.5rem;
+      padding: 1rem;
+      background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+      border-radius: 12px;
+      border: 1px solid #e2e8f0;
+    }
+
+    .sidebar-section h3 {
+      color: #1e293b;
+      margin-bottom: 1rem;
+      font-size: 1.1rem;
+      font-weight: 600;
+    }
+
+    .input-section, .output-section {
+      margin-bottom: 1.5rem;
+      padding: 1rem;
+      background: white;
+      border-radius: 12px;
+      border: 1px solid #e2e8f0;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    }
+
+    .input-section h2, .output-section h2 {
+      color: #1e293b;
+      margin-bottom: 1rem;
+      font-size: 1.1rem;
+      font-weight: 600;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+      color: #475569;
+      font-size: 0.9rem;
+    }
+
+    select, input[type="file"], input[type="text"], input[type="number"], textarea {
+      width: 100%;
+      padding: 0.6rem;
+      border: 2px solid #e2e8f0;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      transition: border-color 0.3s ease;
+      background: white;
+      margin-bottom: 0.5rem;
+    }
+
+    select:focus, input:focus, textarea:focus {
+      outline: none;
+      border-color: #9E1B34;
+      box-shadow: 0 0 0 3px rgba(158, 27, 52, 0.1);
+    }
+
+    button {
+      background: linear-gradient(135deg, #9E1B34 0%, #722F37 100%);
+      color: white;
+      border: none;
+      padding: 0.6rem 1rem;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 500;
+      font-size: 0.9rem;
+      transition: all 0.3s ease;
+      margin-top: 0.5rem;
+      margin-right: 0.5rem;
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(158, 27, 52, 0.3);
+    }
+
+    button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .get-route-btn {
+      background: linear-gradient(135deg, #0f766e 0%, #0d9488 100%);
+      font-size: 0.8rem;
+      padding: 0.4rem 0.8rem;
+      margin-top: 0.5rem;
+    }
+
+    .class-item {
+      margin-bottom: 1rem;
+      padding: 1rem;
+      border: 1px solid #e2e8f0;
+      background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+      border-radius: 8px;
+      transition: all 0.3s ease;
+      font-size: 0.9rem;
+    }
+
+    .class-item:hover {
+      border-color: #9E1B34;
+      box-shadow: 0 2px 8px rgba(158, 27, 52, 0.1);
+    }
+
+    .class-item strong {
+      color: #1e293b;
+      font-size: 1rem;
+    }
+
+    .class-item a {
+      color: #9E1B34;
+      text-decoration: none;
+    }
+
+    .class-item a:hover {
+      text-decoration: underline;
+    }
+
+    .route-display {
+      margin-top: 0.5rem;
+      padding: 0.5rem;
+      background: #f1f5f9;
+      border-radius: 6px;
+      font-size: 0.8rem;
+    }
+
+    #map {
+      flex: 1;
+      background: #f0f9ff;
+    }
+
     #error-popup {
-      background: #ffcccc; color: #900; padding: 10px; position: fixed; top: 10px; right: 10px;
-      border: 1px solid #900; display: none;
+      position: fixed;
+      top: 100px;
+      right: 20px;
+      background: #ef4444;
+      color: white;
+      padding: 1rem;
+      border-radius: 8px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      z-index: 10000;
+      transition: all 0.3s ease;
+      max-width: 300px;
     }
+
+    #error-popup.hidden {
+      display: none;
+    }
+
+    #loadingIndicator {
+      color: #9E1B34;
+      font-weight: 500;
+      margin-left: 0.5rem;
+    }
+
+    .success-message {
+      color: #059669;
+      background: #dcfce7;
+      padding: 0.75rem;
+      border-radius: 8px;
+      border: 1px solid #bbf7d0;
+      margin-top: 1rem;
+      font-size: 0.9rem;
+    }
+
+    .error-message {
+      color: #dc2626;
+      background: #fef2f2;
+      padding: 0.75rem;
+      border-radius: 8px;
+      border: 1px solid #fecaca;
+      margin-top: 1rem;
+      font-size: 0.9rem;
+    }
+
+    .building-form {
+      display: grid;
+      gap: 0.5rem;
+      margin-top: 1rem;
+    }
+
+    .coord-inputs {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.5rem;
+    }
+
+    @media (max-width: 768px) {
+      #menu-toggle {
+        display: block;
+      }
+
+      #auth-nav {
+        display: none;
+      }
+
+      #map-container {
+        flex-direction: column;
+      }
+
+      #sidebar {
+        width: 100%;
+        height: 60vh;
+        order: 2;
+      }
+
+      #map {
+        height: 40vh;
+        order: 1;
+      }
+
+      .coord-inputs {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    .loading {
+      animation: pulse 2s infinite;
+    }
+
   </style>
 </head>
+
 <body>
+  <div id="header">
+    <h1>rouTU</h1>
+    <nav id="auth-nav">
+      <a href="#" id="auth-btn" aria-label="Sign in or sign up to your account">Sign In / Sign Up</a>
+    </nav>
+    <button id="menu-toggle" aria-label="Toggle sidebar menu">☰</button>
+  </div>
 
-<div id="map"></div>
+  <div id="map-container">
+    <div id="sidebar">
+      <div class="sidebar-section">
+        <h3>Today's Schedule</h3>
+        <label for="class-selector">Select a class:</label>
+        <select id="class-selector" aria-label="Select a class">
+          <option value="">Select a class</option>
+          <option value="0">CS101 - Engineering Hall</option>
+          <option value="1">MATH202 - Science Center</option>
+          <option value="2">HIST150 - Humanities Bldg</option>
+          <option value="3">BIO111 - Life Sciences</option>
+        </select>
+        <button id="route-btn" aria-label="Plan route to selected class">Show Route</button>
+      </div>
 
-<div id="sidebar">
-  <h2>Class Scheduler & Routing</h2>
+      <div class="input-section">
+        <h2>Input Your Schedule</h2>
+        <form id="scheduleForm">
+          <div>
+            <label for="imageUpload">Upload Image:</label>
+            <input type="file" id="imageUpload" name="file" accept="image/*">
+          </div>
+          <div style="margin-top: 1rem;">
+            <label for="audioUpload">Upload Audio:</label>
+            <input type="file" id="audioUpload" name="file" accept="audio/*">
+          </div>
+          <div style="margin-top: 1rem;">
+            <label for="textInput">Enter Text Schedule:</label>
+            <textarea id="textInput" name="text_input" rows="5" placeholder="e.g., Calculus I M,W,F 9:00 AM - 9:50 AM MATH 201"></textarea>
+          </div>
+          <button type="submit">Process Schedule</button>
+          <span id="loadingIndicator" style="display:none;" class="loading">Processing...</span>
+        </form>
+      </div>
 
-  <!-- Schedule Form -->
-  <form id="scheduleForm">
-    <label>Enter your schedule (text):</label><br />
-    <textarea name="textInput" rows="5" cols="40" placeholder="Enter schedule text..."></textarea><br /><br />
+      <div class="output-section">
+        <h2>Extracted Schedule</h2>
+        <div id="results">
+          <p>Your processed class schedule will appear here.</p>
+        </div>
+      </div>
+    </div>
 
-    <label>Or upload image:</label>
-    <input type="file" name="imageUpload" accept="image/*" /><br /><br />
+    <div id="map" aria-label="Map view of the campus" role="application">
+      <div style="text-align: center;">
+        <h3>Interactive Campus Map</h3>
+        <p style="margin-top: 0.5rem; opacity: 0.8;">Map functionality coming soon...</p>
+      </div>
+    </div>
+  </div>
 
-    <label>Or upload audio:</label>
-    <input type="file" name="audioUpload" accept="audio/*" /><br /><br />
+  <div id="error-popup" class="hidden" aria-live="assertive" role="alert">
+    <p>Only enter locations on main campus. Go Owls!</p>
+  </div>
 
-    <button type="submit">Process Schedule</button>
-    <span id="loadingIndicator">⏳ Processing...</span>
-  </form>
+  <!-- ✅ Updated JS Section -->
+  <script>
+    // ✅ Replaces mock schedule processing with backend fetch to Gemini
+    document.getElementById('scheduleForm').addEventListener('submit', async function(event) {
+      event.preventDefault();
 
-  <div id="results"></div>
+      const form = event.target;
+      const loadingIndicator = document.getElementById('loadingIndicator');
+      const resultsDiv = document.getElementById('results');
+      const textInput = form.elements['textInput'].value.trim();
 
-  <hr />
+      // Show loading
+      loadingIndicator.style.display = 'inline';
+      resultsDiv.innerHTML = '<p class="loading">Processing your schedule...</p>';
 
-  <h3>Add Custom Building</h3>
-  <label>Name: <input type="text" id="building-name" /></label><br />
-  <label>Latitude: <input type="number" step="0.000001" id="building-lat" /></label><br />
-  <label>Longitude: <input type="number" step="0.000001" id="building-lng" /></label><br />
-  <button id="add-building-btn">Add Building</button>
-
-  <div id="error-popup">Building must be on campus!</div>
-
-  <hr />
-
-  <h3>Select Class to Route</h3>
-  <select id="class-selector">
-    <option value="">-- Select Class --</option>
-  </select>
-  <button id="route-btn">Show Route on Map</button>
-
-</div>
-
-<!-- MapLibre GL JS -->
-<script src="https://unpkg.com/maplibre-gl@3.3.1/dist/maplibre-gl.js"></script>
-
-<script>
-  // Initialize MapLibre GL map
-  const map = new maplibregl.Map({
-    container: 'map',
-    style: 'https://basemaps.cartocdn.com/gl/positron-gl-style/style.json',
-    center: [-75.1550, 39.9811], // Campus center start point
-    zoom: 16,
-    pitch: 60,
-    bearing: -20,
-  });
-
-  map.addControl(new maplibregl.NavigationControl());
-
-  // Initial class locations
-  const classLocations = [
-    { name: "CS101 - Engineering Hall", coords: [-75.1535, 39.9822] },
-    { name: "MATH202 - Science Center", coords: [-75.1570, 39.9805] },
-    { name: "HIST150 - Humanities Bldg", coords: [-75.1545, 39.9790] },
-    { name: "BIO111 - Life Sciences", coords: [-75.1510, 39.9808] },
-  ];
-
-  // Populate class-selector dropdown initially
-  function refreshClassSelector() {
-    const selector = document.getElementById('class-selector');
-    selector.innerHTML = '<option value="">-- Select Class --</option>';
-    classLocations.forEach((cls, i) => {
-      const option = document.createElement('option');
-      option.value = i;
-      option.textContent = cls.name;
-      selector.appendChild(option);
-    });
-  }
-  refreshClassSelector();
-
-  // Campus bounds check (simple rectangle)
-  function isBuildingOnCampus(lat, lng) {
-    const campusBounds = [[39.978, -75.162], [39.985, -75.150]];
-    return lat >= campusBounds[0][0] && lat <= campusBounds[1][0] &&
-           lng >= campusBounds[0][1] && lng <= campusBounds[1][1];
-  }
-
-  // Add building button logic
-  document.getElementById('add-building-btn').addEventListener('click', () => {
-    const name = document.getElementById('building-name').value.trim();
-    const lat = parseFloat(document.getElementById('building-lat').value);
-    const lng = parseFloat(document.getElementById('building-lng').value);
-
-    if (!name || isNaN(lat) || isNaN(lng)) {
-      alert("Please enter valid name, latitude, and longitude.");
-      return;
-    }
-
-    if (!isBuildingOnCampus(lat, lng)) {
-      const popup = document.getElementById('error-popup');
-      popup.style.display = 'block';
-      setTimeout(() => { popup.style.display = 'none'; }, 3000);
-      return;
-    }
-
-    const newBuilding = { name, coords: [lng, lat] };
-
-    // Add marker on map
-    new maplibregl.Marker({ color: '#007BFF' })
-      .setLngLat([lng, lat])
-      .setPopup(new maplibregl.Popup().setHTML(`<strong>${name}</strong>`))
-      .addTo(map);
-
-    classLocations.push(newBuilding);
-    refreshClassSelector();
-
-    // Clear input fields
-    document.getElementById('building-name').value = '';
-    document.getElementById('building-lat').value = '';
-    document.getElementById('building-lng').value = '';
-  });
-
-  // Current route source & layer id
-  let currentRouteId = null;
-
-  // Helper: Draw route on map given GeoJSON LineString
-  function drawRoute(routeGeoJSON) {
-    if (currentRouteId) {
-      if (map.getLayer(currentRouteId)) map.removeLayer(currentRouteId);
-      if (map.getSource(currentRouteId)) map.removeSource(currentRouteId);
-    }
-
-    currentRouteId = 'route-layer';
-
-    map.addSource(currentRouteId, {
-      type: 'geojson',
-      data: routeGeoJSON,
-    });
-
-    map.addLayer({
-      id: currentRouteId,
-      type: 'line',
-      source: currentRouteId,
-      layout: {
-        'line-cap': 'round',
-        'line-join': 'round'
-      },
-      paint: {
-        'line-color': '#9E1B34',
-        'line-width': 4
+      if (!textInput) {
+        resultsDiv.innerHTML = '<div class="error-message">Please enter your schedule in the text box.</div>';
+        loadingIndicator.style.display = 'none';
+        return;
       }
-    });
-  }
 
-  // Function to fetch route from OSRM public server (walking)
-  async function fetchRoute(start, end) {
-    const coords = `${start[0]},${start[1]};${end[0]},${end[1]}`;
-    const url = `https://router.project-osrm.org/route/v1/walking/${coords}?overview=full&geometries=geojson`;
+      try {
+        const response = await fetch('/api/process_schedule', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            type: 'text',
+            text_input: textInput
+          })
+        });
 
-    const response = await fetch(url);
-    if (!response.ok) throw new Error('Routing API error');
-    const data = await response.json();
+        const result = await response.json();
 
-    if (data.code !== "Ok" || !data.routes.length) {
-      throw new Error('No route found');
-    }
-
-    return data.routes[0];
-  }
-
-  // Show route on map from campus start to selected class location
-  document.getElementById('route-btn').addEventListener('click', async () => {
-    const selector = document.getElementById('class-selector');
-    const index = selector.value;
-
-    if (index === "") {
-      alert('Please select a class first.');
-      return;
-    }
-
-    const cls = classLocations[index];
-    const start = [-75.1550, 39.9811]; // Fixed campus start point
-    const end = cls.coords;
-
-    try {
-      const route = await fetchRoute(start, end);
-      drawRoute(route.geometry);
-
-      // Fit map to route bounds with padding
-      const bounds = route.geometry.coordinates.reduce((b, coord) => b.extend(coord), new maplibregl.LngLatBounds(route.geometry.coordinates[0], route.geometry.coordinates[0]));
-      map.fitBounds(bounds, { padding: 50 });
-
-    } catch (err) {
-      alert('Failed to fetch route: ' + err.message);
-      console.error(err);
-    }
-  });
-
-  // Schedule form processing (supports text, image, audio uploads)
-  document.getElementById('scheduleForm').addEventListener('submit', async function(event) {
-    event.preventDefault();
-
-    const form = event.target;
-    const loadingIndicator = document.getElementById('loadingIndicator');
-    const resultsDiv = document.getElementById('results');
-
-    loadingIndicator.style.display = 'inline';
-    resultsDiv.innerHTML = '<p>Processing your schedule...</p>';
-
-    let inputType;
-    const formData = new FormData();
-
-    if (form.elements['imageUpload'].files.length > 0) {
-      inputType = 'image';
-      formData.append('file', form.elements['imageUpload'].files[0]);
-    } else if (form.elements['audioUpload'].files.length > 0) {
-      inputType = 'audio';
-      formData.append('file', form.elements['audioUpload'].files[0]);
-    } else if (form.elements['textInput'].value.trim() !== '') {
-      inputType = 'text';
-      formData.append('text_input', form.elements['textInput'].value.trim());
-    } else {
-      alert('Please provide an image, audio, or text input.');
-      loadingIndicator.style.display = 'none';
-      resultsDiv.innerHTML = '<p>No input provided.</p>';
-      return;
-    }
-    formData.append('type', inputType);
-
-    try {
-      // You must implement this API on your backend to parse schedule
-      const response = await fetch('/process_schedule', {
-        method: 'POST',
-        body: formData
-      });
-      const data = await response.json();
-
-      if (data.success) {
-        resultsDiv.innerHTML = '';
-
-        if (data.classes.length > 0) {
-          data.classes.forEach((cls, index) => {
+        if (result.success) {
+          const classes = result.classes;
+          resultsDiv.innerHTML = `<div class="success-message">Schedule processed successfully!</div>`;
+          classes.forEach(cls => {
             resultsDiv.innerHTML += `
               <div class="class-item">
-                <strong>${cls.class_name}</strong><br/>
-                Days: ${cls.days ? cls.days.join(', ') : 'N/A'}<br/>
-                Time: ${cls.start_time} - ${cls.end_time}<br/>
-                Location: ${cls.full_address} (<a href="${cls.map_link}" target="_blank">View on Map</a>)<br/>
-                <button class="get-route-btn"
-                        data-lat="${cls.latitude}"
-                        data-lng="${cls.longitude}"
-                        data-class-name="${cls.class_name}"
-                        data-index="${index}">
-                  Show Route on Map
-                </button>
-                <div class="route-display" id="route-${index}"></div>
+                <strong>${cls.class_name}</strong><br>
+                Time: ${cls.start_time} - ${cls.end_time}<br>
+                Location: ${cls.full_address} (<a href="${cls.map_link}" target="_blank">View on Map</a>)
               </div>
             `;
           });
-
-          // Attach event listeners to new buttons
-          document.querySelectorAll('.get-route-btn').forEach(button => {
-            button.addEventListener('click', async function() {
-              const lat = parseFloat(this.dataset.lat);
-              const lng = parseFloat(this.dataset.lng);
-              const className = this.dataset.className;
-              const idx = this.dataset.index;
-              const routeDiv = document.getElementById(`route-${idx}`);
-
-              routeDiv.innerHTML = 'Getting route...';
-
-              try {
-                const start = [-75.1550, 39.9811]; // Fixed campus start
-                const end = [lng, lat];
-
-                const route = await fetchRoute(start, end);
-                drawRoute(route.geometry);
-
-                routeDiv.innerHTML = `<em>Route displayed on map for <strong>${className}</strong>.</em>`;
-
-                // Fit map to route bounds
-                const bounds = route.geometry.coordinates.reduce((b, coord) => b.extend(coord), new maplibregl.LngLatBounds(route.geometry.coordinates[0], route.geometry.coordinates[0]));
-                map.fitBounds(bounds, { padding: 50 });
-
-              } catch (error) {
-                routeDiv.innerHTML = `<span style="color:red;">Failed to get route: ${error.message}</span>`;
-              }
-            });
-          });
-
         } else {
-          resultsDiv.innerHTML = '<p>No classes found in the provided schedule.</p>';
+          throw new Error(result.error || 'Unknown error');
         }
-      } else {
-        resultsDiv.innerHTML = `<p style="color: red;">Error: ${data.error || 'Something went wrong.'}</p>`;
+      } catch (error) {
+        console.error('Processing error:', error);
+        resultsDiv.innerHTML = `<div class="error-message">Error processing schedule: ${error.message}</div>`;
+      } finally {
+        loadingIndicator.style.display = 'none';
       }
-    } catch (error) {
-      console.error('Fetch error:', error);
-      resultsDiv.innerHTML = `<p style="color: red;">Network error or server issue: ${error.message}</p>`;
-    } finally {
-      loadingIndicator.style.display = 'none';
-    }
-  });
+    });
 
-</script>
-<script src="script.js"></script>
+    // Route button functionality
+    document.getElementById('route-btn').addEventListener('click', function() {
+      const selector = document.getElementById('class-selector');
+      const selectedValue = selector.value;
+
+      if (selectedValue === '') {
+        alert('Please select a class first.');
+        return;
+      }
+
+      const selectedText = selector.options[selector.selectedIndex].text;
+      alert(`Route to ${selectedText} would be shown on the map. Map functionality coming soon!`);
+    });
+
+    // Menu toggle for mobile
+    document.getElementById('menu-toggle').addEventListener('click', function() {
+      const sidebar = document.getElementById('sidebar');
+      sidebar.style.display = sidebar.style.display === 'none' ? 'block' : 'none';
+    });
+
+    // Auth button placeholder
+    document.getElementById('auth-btn').addEventListener('click', function(e) {
+      e.preventDefault();
+      alert('Authentication feature coming soon!');
+    });
+  </script>
 </body>
 </html>
