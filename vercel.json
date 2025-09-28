@@ -11,5 +11,8 @@
       "src": "/(.*)",
       "dest": "main.py"
     }
+  ],
+  "rewrites": [
+    { "source": "/input", "destination": "/input.html"}
   ]
 }
