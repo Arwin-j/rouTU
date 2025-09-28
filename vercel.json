@@ -8,8 +8,14 @@
   ],
   "routes": [
     {
+      "src": "/api/process_schedule",
+      "methods": ["POST"],
+      "dest": "main.py"
+    },
+    {
       "src": "/(.*)",
       "dest": "main.py"
     }
   ]
 }
+
