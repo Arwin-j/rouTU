@@ -2,7 +2,7 @@
 const map = new maplibregl.Map({
   container: 'map',
   style: 'https://basemaps.cartocdn.com/gl/positron-gl-style/style.json',
-  center: [39.9829, -75.1547], // Temple University Philadelphia main campus
+  center: [-75.1520, 39.9817], // Temple University Philadelphia main campus
   zoom: 16,
   pitch: 60,
   bearing: -20,
