@@ -8,12 +8,11 @@
   <!-- MapLibre GL JS -->
   <link href="https://unpkg.com/maplibre-gl@3.3.1/dist/maplibre-gl.css" rel="stylesheet" />
   <script src="https://unpkg.com/maplibre-gl@3.3.1/dist/maplibre-gl.js"></script>
-
+  
   <!-- Auth0 SPA SDK -->
   <script src="https://cdn.auth0.com/js/auth0-spa-js/1.26/auth0-spa-js.production.js"></script>
 
   <style>
-
     * {
       margin: 0;
       padding: 0;
@@ -27,7 +26,7 @@
     }
 
     #header {
-      background: linear-gradient(135deg, #9E1B34 0%, #722F37 100%);
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       color: white;
       padding: 1rem 2rem;
       display: flex;
@@ -74,17 +73,17 @@
     }
 
     #sidebar {
-      width: 450px;
+      width: 400px;
       background: white;
-      padding: 1rem;
+      padding: 1.5rem;
       overflow-y: auto;
       box-shadow: 4px 0 6px rgba(0, 0, 0, 0.1);
       z-index: 1000;
     }
 
     .sidebar-section {
-      margin-bottom: 1.5rem;
-      padding: 1rem;
+      margin-bottom: 2rem;
+      padding: 1.5rem;
       background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
       border-radius: 12px;
       border: 1px solid #e2e8f0;
@@ -93,13 +92,13 @@
     .sidebar-section h3 {
       color: #1e293b;
       margin-bottom: 1rem;
-      font-size: 1.1rem;
+      font-size: 1.2rem;
       font-weight: 600;
     }
 
     .input-section, .output-section {
-      margin-bottom: 1.5rem;
-      padding: 1rem;
+      margin-bottom: 2rem;
+      padding: 1.5rem;
       background: white;
       border-radius: 12px;
       border: 1px solid #e2e8f0;
@@ -118,56 +117,46 @@
       margin-bottom: 0.5rem;
       font-weight: 500;
       color: #475569;
-      font-size: 0.9rem;
     }
 
-    select, input[type="file"], input[type="text"], input[type="number"], textarea {
+    select, input[type="file"], textarea {
       width: 100%;
-      padding: 0.6rem;
+      padding: 0.75rem;
       border: 2px solid #e2e8f0;
       border-radius: 8px;
       font-size: 0.9rem;
       transition: border-color 0.3s ease;
       background: white;
-      margin-bottom: 0.5rem;
     }
 
-    select:focus, input:focus, textarea:focus {
+    select:focus, input[type="file"]:focus, textarea:focus {
       outline: none;
-      border-color: #9E1B34;
-      box-shadow: 0 0 0 3px rgba(158, 27, 52, 0.1);
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
     }
 
     button {
-      background: linear-gradient(135deg, #9E1B34 0%, #722F37 100%);
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       color: white;
       border: none;
-      padding: 0.6rem 1rem;
+      padding: 0.75rem 1.5rem;
       border-radius: 8px;
       cursor: pointer;
       font-weight: 500;
-      font-size: 0.9rem;
       transition: all 0.3s ease;
-      margin-top: 0.5rem;
+      margin-top: 1rem;
       margin-right: 0.5rem;
     }
 
     button:hover {
       transform: translateY(-2px);
-      box-shadow: 0 4px 8px rgba(158, 27, 52, 0.3);
+      box-shadow: 0 4px 8px rgba(102, 126, 234, 0.3);
     }
 
     button:disabled {
       opacity: 0.6;
       cursor: not-allowed;
       transform: none;
-    }
-
-    .get-route-btn {
-      background: linear-gradient(135deg, #0f766e 0%, #0d9488 100%);
-      font-size: 0.8rem;
-      padding: 0.4rem 0.8rem;
-      margin-top: 0.5rem;
     }
 
     .class-item {
@@ -177,21 +166,20 @@
       background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
       border-radius: 8px;
       transition: all 0.3s ease;
-      font-size: 0.9rem;
     }
 
     .class-item:hover {
-      border-color: #9E1B34;
-      box-shadow: 0 2px 8px rgba(158, 27, 52, 0.1);
+      border-color: #667eea;
+      box-shadow: 0 2px 8px rgba(102, 126, 234, 0.1);
     }
 
     .class-item strong {
       color: #1e293b;
-      font-size: 1rem;
+      font-size: 1.1rem;
     }
 
     .class-item a {
-      color: #9E1B34;
+      color: #667eea;
       text-decoration: none;
     }
 
@@ -199,22 +187,19 @@
       text-decoration: underline;
     }
 
-    .route-display {
-      margin-top: 0.5rem;
-      padding: 0.5rem;
-      background: #f1f5f9;
-      border-radius: 6px;
-      font-size: 0.8rem;
-    }
-
     #map {
       flex: 1;
-      background: #f0f9ff;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 1.2rem;
     }
 
     #error-popup {
       position: fixed;
-      top: 100px;
+      top: 20px;
       right: 20px;
       background: #ef4444;
       color: white;
@@ -223,7 +208,6 @@
       box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
       z-index: 10000;
       transition: all 0.3s ease;
-      max-width: 300px;
     }
 
     #error-popup.hidden {
@@ -231,7 +215,7 @@
     }
 
     #loadingIndicator {
-      color: #9E1B34;
+      color: #667eea;
       font-weight: 500;
       margin-left: 0.5rem;
     }
@@ -243,7 +227,6 @@
       border-radius: 8px;
       border: 1px solid #bbf7d0;
       margin-top: 1rem;
-      font-size: 0.9rem;
     }
 
     .error-message {
@@ -253,19 +236,6 @@
       border-radius: 8px;
       border: 1px solid #fecaca;
       margin-top: 1rem;
-      font-size: 0.9rem;
-    }
-
-    .building-form {
-      display: grid;
-      gap: 0.5rem;
-      margin-top: 1rem;
-    }
-
-    .coord-inputs {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 0.5rem;
     }
 
     @media (max-width: 768px) {
@@ -283,20 +253,15 @@
 
       #sidebar {
         width: 100%;
-        height: 60vh;
-        order: 2;
+        height: 50vh;
       }
 
       #map {
-        height: 40vh;
-        order: 1;
-      }
-
-      .coord-inputs {
-        grid-template-columns: 1fr;
+        height: 50vh;
       }
     }
 
+    /* Loading animation */
     @keyframes pulse {
       0%, 100% { opacity: 1; }
       50% { opacity: 0.5; }
@@ -305,7 +270,6 @@
     .loading {
       animation: pulse 2s infinite;
     }
-
   </style>
 </head>
 
@@ -373,88 +337,109 @@
     <p>Only enter locations on main campus. Go Owls!</p>
   </div>
 
-  <!-- ✅ Updated JS Section -->
   <script>
-    // ✅ Replaces mock schedule processing with backend fetch to Gemini
+    // Mock schedule processing for demo purposes
+    // In production, this would connect to your backend API
     document.getElementById('scheduleForm').addEventListener('submit', async function(event) {
-      event.preventDefault();
+        event.preventDefault();
 
-      const form = event.target;
-      const loadingIndicator = document.getElementById('loadingIndicator');
-      const resultsDiv = document.getElementById('results');
-      const textInput = form.elements['textInput'].value.trim();
+        const form = event.target;
+        const loadingIndicator = document.getElementById('loadingIndicator');
+        const resultsDiv = document.getElementById('results');
 
-      // Show loading
-      loadingIndicator.style.display = 'inline';
-      resultsDiv.innerHTML = '<p class="loading">Processing your schedule...</p>';
+        // Show loading state
+        loadingIndicator.style.display = 'inline';
+        resultsDiv.innerHTML = '<p class="loading">Processing your schedule...</p>';
 
-      if (!textInput) {
-        resultsDiv.innerHTML = '<div class="error-message">Please enter your schedule in the text box.</div>';
-        loadingIndicator.style.display = 'none';
-        return;
-      }
+        // Simulate processing delay
+        await new Promise(resolve => setTimeout(resolve, 2000));
 
-      try {
-        const response = await fetch('/api/process_schedule', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            type: 'text',
-            text_input: textInput
-          })
-        });
+        // Mock processing logic
+        try {
+            let inputProvided = false;
+            let inputType = '';
 
-        const result = await response.json();
+            if (form.elements['imageUpload'].files.length > 0) {
+                inputProvided = true;
+                inputType = 'image';
+            } else if (form.elements['audioUpload'].files.length > 0) {
+                inputProvided = true;
+                inputType = 'audio';
+            } else if (form.elements['textInput'].value.trim() !== '') {
+                inputProvided = true;
+                inputType = 'text';
+            }
 
-        if (result.success) {
-          const classes = result.classes;
-          resultsDiv.innerHTML = `<div class="success-message">Schedule processed successfully!</div>`;
-          classes.forEach(cls => {
-            resultsDiv.innerHTML += `
-              <div class="class-item">
-                <strong>${cls.class_name}</strong><br>
-                Time: ${cls.start_time} - ${cls.end_time}<br>
-                Location: ${cls.full_address} (<a href="${cls.map_link}" target="_blank">View on Map</a>)
-              </div>
-            `;
-          });
-        } else {
-          throw new Error(result.error || 'Unknown error');
+            if (!inputProvided) {
+                resultsDiv.innerHTML = '<div class="error-message">Please provide an image, audio, or text input.</div>';
+                return;
+            }
+
+            // Mock successful processing
+            const mockClasses = [
+                {
+                    class_name: 'Computer Science 101',
+                    days: ['Monday', 'Wednesday', 'Friday'],
+                    start_time: '9:00 AM',
+                    end_time: '9:50 AM',
+                    full_address: 'Engineering Hall, Room 201',
+                    map_link: '#'
+                },
+                {
+                    class_name: 'Mathematics 202',
+                    days: ['Tuesday', 'Thursday'],
+                    start_time: '11:00 AM',
+                    end_time: '12:15 PM',
+                    full_address: 'Science Center, Room 105',
+                    map_link: '#'
+                }
+            ];
+
+            resultsDiv.innerHTML = '<div class="success-message">Schedule processed successfully using ' + inputType + ' input!</div>';
+            
+            mockClasses.forEach(cls => {
+                resultsDiv.innerHTML += `
+                    <div class="class-item">
+                        <strong>${cls.class_name}</strong><br>
+                        Days: ${cls.days.join(', ')}<br>
+                        Time: ${cls.start_time} - ${cls.end_time}<br>
+                        Location: ${cls.full_address} (<a href="${cls.map_link}">View on Map</a>)
+                    </div>
+                `;
+            });
+
+        } catch (error) {
+            console.error('Processing error:', error);
+            resultsDiv.innerHTML = `<div class="error-message">Error processing schedule: ${error.message}</div>`;
+        } finally {
+            loadingIndicator.style.display = 'none';
         }
-      } catch (error) {
-        console.error('Processing error:', error);
-        resultsDiv.innerHTML = `<div class="error-message">Error processing schedule: ${error.message}</div>`;
-      } finally {
-        loadingIndicator.style.display = 'none';
-      }
     });
 
     // Route button functionality
     document.getElementById('route-btn').addEventListener('click', function() {
-      const selector = document.getElementById('class-selector');
-      const selectedValue = selector.value;
-
-      if (selectedValue === '') {
-        alert('Please select a class first.');
-        return;
-      }
-
-      const selectedText = selector.options[selector.selectedIndex].text;
-      alert(`Route to ${selectedText} would be shown on the map. Map functionality coming soon!`);
+        const selector = document.getElementById('class-selector');
+        const selectedValue = selector.value;
+        
+        if (selectedValue === '') {
+            alert('Please select a class first.');
+            return;
+        }
+        
+        const selectedText = selector.options[selector.selectedIndex].text;
+        alert(`Route to ${selectedText} would be shown on the map. Map functionality coming soon!`);
     });
 
     // Menu toggle for mobile
     document.getElementById('menu-toggle').addEventListener('click', function() {
-      const sidebar = document.getElementById('sidebar');
-      sidebar.style.display = sidebar.style.display === 'none' ? 'block' : 'none';
+        const sidebar = document.getElementById('sidebar');
+        sidebar.style.display = sidebar.style.display === 'none' ? 'block' : 'none';
     });
 
-    // Auth button placeholder
+    // Auth button functionality (placeholder)
     document.getElementById('auth-btn').addEventListener('click', function(e) {
-      e.preventDefault();
-      alert('Authentication feature coming soon!');
+        e.preventDefault();
+        alert('Authentication feature coming soon!');
     });
   </script>
 </body>
