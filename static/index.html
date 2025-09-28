@@ -1,14 +1,321 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>rouTU</title>
-    </head>
-    <body>
-        <h1>Welcome to rouTU</h1>
-        <p>Your go-to platform for routing and transportation solutions.</p>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>rouTU - Temple University Campus Navigator</title>
+    
+    <!-- MapLibre GL JS -->
+    <link href="https://unpkg.com/maplibre-gl@3.3.1/dist/maplibre-gl.css" rel="stylesheet" />
+    <script src="https://unpkg.com/maplibre-gl@3.3.1/dist/maplibre-gl.js"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-        <button onclick="window.location.href='/input'">Input page</button>
-    </body>
+        body, html {
+            height: 100%;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            overflow: hidden;
+        }
+
+        #map {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.8) 0%, rgba(118, 75, 162, 0.7) 100%);
+            z-index: 2;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            text-align: center;
+        }
+
+        .logo-container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            padding: 3rem 4rem;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            transform: translateY(-50px);
+            animation: fadeInUp 1.5s ease-out forwards;
+        }
+
+        .logo-container h1 {
+            font-size: 4rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.5);
+            letter-spacing: -2px;
+        }
+
+        .tagline {
+            font-size: 1.3rem;
+            margin-bottom: 2.5rem;
+            opacity: 0.95;
+            font-weight: 300;
+            max-width: 500px;
+            line-height: 1.6;
+        }
+
+        .start-button {
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+            color: #9E1B34;
+            border: none;
+            padding: 1.2rem 3rem;
+            font-size: 1.1rem;
+            font-weight: 700;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .start-button:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(158, 27, 52, 0.1), transparent);
+            transition: left 0.5s;
+        }
+
+        .start-button:hover:before {
+            left: 100%;
+        }
+
+        .start-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+            background: linear-gradient(135deg, #fff 0%, #f1f3f4 100%);
+        }
+
+        .features {
+            position: absolute;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 2rem;
+            z-index: 3;
+            opacity: 0;
+            animation: fadeIn 2s ease-out 1s forwards;
+        }
+
+        .feature-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            padding: 1rem 1.5rem;
+            text-align: center;
+            min-width: 120px;
+        }
+
+        .feature-card h3 {
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 0.3rem;
+        }
+
+        .feature-card p {
+            font-size: 0.8rem;
+            opacity: 0.8;
+        }
+
+        .temple-badge {
+            position: absolute;
+            top: 30px;
+            right: 30px;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50px;
+            padding: 0.8rem 1.5rem;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: white;
+            z-index: 3;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .logo-container {
+                margin: 0 1rem;
+                padding: 2rem 2.5rem;
+            }
+
+            .logo-container h1 {
+                font-size: 2.8rem;
+            }
+
+            .tagline {
+                font-size: 1.1rem;
+                margin-bottom: 2rem;
+            }
+
+            .start-button {
+                padding: 1rem 2.5rem;
+                font-size: 1rem;
+            }
+
+
+            .temple-badge {
+                top: 20px;
+                right: 20px;
+                padding: 0.6rem 1rem;
+                font-size: 0.8rem;
+            }
+        }
+
+        .map-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            background: rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <!-- Interactive Campus Map Background -->
+    <div id="map"></div>
+    <div class="map-overlay"></div>
+    
+    
+    <!-- Main Content Overlay -->
+    <div class="overlay">
+        <div class="logo-container">
+            <h1>rouTU</h1>
+            <p class="tagline">
+                Navigate Temple University campus with ease. 
+                Plan your routes, discover buildings, and never be late to class again.
+            </p>
+            <button class="start-button" onclick="window.location.href='/input'">
+                Start Navigation
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Initialize interactive campus map
+        const map = new maplibregl.Map({
+            container: 'map',
+            style: 'https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json',
+            center: [-75.1550, 39.9811], // Temple University coordinates
+            zoom: 15,
+            pitch: 45,
+            bearing: -20,
+            interactive: true
+        });
+
+        // Add subtle navigation controls
+        map.addControl(new maplibregl.NavigationControl({
+            showCompass: false,
+            showZoom: true,
+            visualizePitch: false
+        }), 'bottom-right');
+
+        // Add campus building markers once map loads
+        map.on('load', () => {
+            // Define key Temple University buildings
+            const templeBuildings = [
+                { name: "Bell Tower", coords: [-75.1551, 39.9812] },
+                { name: "Engineering Hall", coords: [-75.1535, 39.9822] },
+                { name: "Science Center", coords: [-75.1570, 39.9805] },
+                { name: "Humanities Building", coords: [-75.1545, 39.9790] },
+                { name: "Life Sciences", coords: [-75.1510, 39.9808] },
+                { name: "Business Building", coords: [-75.1525, 39.9815] },
+                { name: "Student Center", coords: [-75.1555, 39.9800] },
+                { name: "Library", coords: [-75.1540, 39.9805] }
+            ];
+
+            // Add building markers with Temple colors
+            templeBuildings.forEach(building => {
+                const marker = new maplibregl.Marker({ 
+                    color: '#9E1B34',
+                    scale: 0.8
+                })
+                .setLngLat(building.coords)
+                .setPopup(
+                    new maplibregl.Popup({ 
+                        offset: 25,
+                        closeButton: false 
+                    }).setHTML(`<strong style="color: #9E1B34;">${building.name}</strong>`)
+                )
+                .addTo(map);
+            });
+
+            // Subtle map animation
+            map.rotateTo(-30, { duration: 20000 });
+        });
+
+        // Smooth map rotation for dynamic effect
+        let rotation = 0;
+        function rotateMap() {
+            rotation += 0.1;
+            map.rotateTo(rotation, { duration: 1000, easing: (t) => t });
+            requestAnimationFrame(rotateMap);
+        }
+        
+        // Start subtle rotation after a delay
+        setTimeout(() => {
+            // rotateMap(); // Uncomment for continuous rotation
+        }, 3000);
+
+        // Add click interaction for enhanced engagement
+        map.on('click', (e) => {
+            // Subtle zoom to clicked location
+            map.flyTo({
+                center: e.lngLat,
+                zoom: map.getZoom() + 0.5,
+                duration: 1000
+            });
+        });
+    </script>
+</body>
 </html>
