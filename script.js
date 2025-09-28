@@ -97,7 +97,7 @@ document.getElementById('add-building-btn').addEventListener('click', () => {
 });
 
 // Current route source & layer id
-let currentRouteId = null;
+var currentRouteId = null;
 
 // Helper: Draw route on map given GeoJSON LineString
 function drawRoute(routeGeoJSON) {
