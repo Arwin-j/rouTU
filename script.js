@@ -21,16 +21,6 @@ const map = new maplibregl.Map({
 // Add navigation controls
 map.addControl(new maplibregl.NavigationControl());
 
-// Add markers for sample building locations
-classLocations.forEach((loc) => {
-  new maplibregl.Marker({ color: '#8A1538' })
-    .setLngLat(loc.coords)
-    .setPopup(new maplibregl.Popup().setHTML(`<strong>${loc.name}</strong>`))
-    .addTo(map);
-});
-
-map.addControl(new maplibregl.NavigationControl());
-
 // Initial class locations
 const classLocations = [
   { name: "CS101 - Engineering Hall", coords: [-75.1535, 39.9822] },
@@ -38,6 +28,14 @@ const classLocations = [
   { name: "HIST150 - Humanities Bldg", coords: [-75.1545, 39.9790] },
   { name: "BIO111 - Life Sciences", coords: [-75.1510, 39.9808] },
 ];
+
+// Add markers for sample building locations
+classLocations.forEach((loc) => {
+  new maplibregl.Marker({ color: '#8A1538' })
+    .setLngLat(loc.coords)
+    .setPopup(new maplibregl.Popup().setHTML(`<strong>${loc.name}</strong>`))
+    .addTo(map);
+});
 
 // Populate class-selector dropdown initially
 function refreshClassSelector() {
