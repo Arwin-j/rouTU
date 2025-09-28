@@ -2,11 +2,33 @@
 const map = new maplibregl.Map({
   container: 'map',
   style: 'https://basemaps.cartocdn.com/gl/positron-gl-style/style.json',
-  center: [-75.1550, 39.9811], // Campus center start point
+  center: [39.9829, -75.1547], // Temple University Philadelphia main campus
   zoom: 16,
   pitch: 60,
   bearing: -20,
+  antialias: true
 });
+
+map.on('style.load', () => {
+  // Add 3D buildings layer from the existing source (buildings must exist in the source)
+  if (!map.getLayer('3d-buildings')) {
+    map.addLayer({
+      id: '3d-buildings',
+      source: 'composite',  // may need to check actual source name or add source if missing
+      'source-layer': 'building',
+      filter: ['==', 'extrude', 'true'],
+      type: 'fill-extrusion',
+      minzoom: 15,
+      paint: {
+        'fill-extrusion-color': '#aaa',
+        'fill-extrusion-height': ['get', 'height'],
+        'fill-extrusion-base': ['get', 'min_height'],
+        'fill-extrusion-opacity': 0.6
+      }
+    });
+  }
+});
+
 
 map.addControl(new maplibregl.NavigationControl());
 
