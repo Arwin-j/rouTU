@@ -29,12 +29,15 @@ const classLocations = [
   { name: "BIO111 - Life Sciences", coords: [-75.1510, 39.9808] },
 ];
 
-// Add markers for sample building locations
-classLocations.forEach((loc) => {
-  new maplibregl.Marker({ color: '#8A1538' })
+// Add markers for sample building locations and enable click-to-route
+classLocations.forEach((loc, idx) => {
+  const marker = new maplibregl.Marker({ color: '#8A1538' })
     .setLngLat(loc.coords)
     .setPopup(new maplibregl.Popup().setHTML(`<strong>${loc.name}</strong>`))
     .addTo(map);
+  marker.getElement().addEventListener('click', async () => {
+    await showRouteTo(loc, idx);
+  });
 });
 
 // Populate class-selector dropdown initially
@@ -141,35 +144,47 @@ async function fetchRoute(start, end) {
   return data.routes[0];
 }
 
-// Show route on map from campus start to selected class location
-document.getElementById('route-btn').addEventListener('click', async () => {
-  const selector = document.getElementById('class-selector');
-  const index = selector.value;
-
-  if (index === "") {
-    alert('Please select a class first.');
-    return;
-  }
-
-  const cls = classLocations[index];
+// Show route on map from campus start to selected class location or marker
+async function showRouteTo(cls, idx) {
   const start = [-75.1550, 39.9811]; // Fixed campus start point
   const end = cls.coords;
-
+  const routeDetailsDiv = document.getElementById('route-details');
+  routeDetailsDiv.innerHTML = '<em>Loading route...</em>';
   try {
     const route = await fetchRoute(start, end);
     drawRoute(route.geometry);
-
     // Fit map to route bounds with padding
     const bounds = route.geometry.coordinates.reduce(
       (b, coord) => b.extend(coord),
       new maplibregl.LngLatBounds(route.geometry.coordinates[0], route.geometry.coordinates[0])
     );
     map.fitBounds(bounds, { padding: 50 });
-
+    // Show step-by-step directions if available
+    if (route.legs && route.legs.length > 0) {
+      const steps = route.legs[0].steps;
+      let html = `<h3>Route to ${cls.name}</h3><ol>`;
+      steps.forEach((step, i) => {
+        html += `<li>${step.maneuver.instruction || step.name || 'Continue'} (${(step.distance/100).toFixed(2)} m)</li>`;
+      });
+      html += '</ol>';
+      routeDetailsDiv.innerHTML = html;
+    } else {
+      routeDetailsDiv.innerHTML = '<em>No step-by-step directions available.</em>';
+    }
   } catch (err) {
-    alert('Failed to fetch route: ' + err.message);
+    routeDetailsDiv.innerHTML = `<span style="color:red;">Failed to fetch route: ${err.message}</span>`;
     console.error(err);
   }
+}
+
+document.getElementById('route-btn').addEventListener('click', async () => {
+  const selector = document.getElementById('class-selector');
+  const index = selector.value;
+  if (index === "") {
+    alert('Please select a class first.');
+    return;
+  }
+  await showRouteTo(classLocations[index], index);
 });
 
 // Schedule form processing (supports text, image, audio uploads)
