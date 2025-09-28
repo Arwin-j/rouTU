@@ -1,4 +1,4 @@
- {
+{
   "version": 2,
   "builds": [
     {
@@ -7,7 +7,18 @@
     }
   ],
   "routes": [
-    {"src": "/api/process_schedule","methods": ["POST"], "dest": "main.py"},
-    {"src": "/input", "dest": "/input.html"}
+    {
+      "src": "/api/process_schedule",
+      "methods": ["POST"],
+      "dest": "main.py"
+    },
+    {
+      "src": "/input",
+      "dest": "/input.html"
+    },
+    {
+      "src": "/",
+      "dest": "/static/index.html"
+    }
   ]
 }
