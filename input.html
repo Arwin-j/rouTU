@@ -381,43 +381,8 @@
   </div>
 
   <script>
-    // Initialize MapLibre GL map
-    const map = new maplibregl.Map({
-      container: 'map',
-      style: 'https://demotiles.maplibre.org/style.json',
-      center: [-122.25854, 37.8719], // Example center (Berkeley campus)
-      zoom: 15
-    });
-
-    // Example campus building coordinates keyed by index (matching select options)
-    const campusBuildings = [
-      {
-        name: "Engineering Hall",
-        coordinates: [-122.2578, 37.8723]
-      },
-      {
-        name: "Science Center",
-        coordinates: [-122.2591, 37.8708]
-      },
-      {
-        name: "Humanities Bldg",
-        coordinates: [-122.2605, 37.8710]
-      },
-      {
-        name: "Life Sciences",
-        coordinates: [-122.2570, 37.8700]
-      }
-    ];
-
-    // Assume starting point is a fixed location (e.g., main entrance)
-    const startPoint = [-122.2580, 37.8715];
-
-    // Markers for start and destination
-    let startMarker = null;
-    let destMarker = null;
-
-    // Remove route layer if it exists
-    function clearRoute() {
+    // Map logic is now in script.js for Temple University campus
+    // See script.js for map initialization, bounds, and marker logic
       if (map.getLayer('route')) {
         map.removeLayer('route');
       }
@@ -432,7 +397,6 @@
         destMarker.remove();
         destMarker = null;
       }
-    }
 
     // Draw a simple straight line route (for demo) between startPoint and selected building
     function drawRoute(destinationCoords) {

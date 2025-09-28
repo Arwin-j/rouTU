@@ -1,4 +1,4 @@
-// Define campus bounds (southwest and northeast corners)
+// Define Temple University main campus bounds (southwest and northeast corners)
 const campusBounds = new maplibregl.LngLatBounds(
   [-75.162, 39.978], // Southwest corner (lng, lat)
   [-75.150, 39.985]  // Northeast corner (lng, lat)
@@ -7,35 +7,26 @@ const campusBounds = new maplibregl.LngLatBounds(
 // Initialize MapLibre GL map with restricted bounds and zoom limits
 const map = new maplibregl.Map({
   container: 'map',
-  style: 'https://basemaps.cartocdn.com/gl/positron-gl-style/style.json',
+  style: 'https://tiles.stadiamaps.com/styles/osm_bright.json', // OSM Bright: shows roads, names, details
   center: [-75.1520, 39.9817], // Temple University Philadelphia main campus
   zoom: 16,
-  pitch: 60,
-  bearing: -20,
+  pitch: 0,
+  bearing: 0,
   antialias: true,
   maxBounds: campusBounds, // Restrict panning to campus bounds
   minZoom: 15,             // Minimum zoom level
   maxZoom: 18              // Maximum zoom level
 });
 
-map.on('style.load', () => {
-  // Add 3D buildings layer from the existing source (buildings must exist in the source)
-  if (!map.getLayer('3d-buildings')) {
-    map.addLayer({
-      id: '3d-buildings',
-      source: 'composite',  // may need to check actual source name or add source if missing
-      'source-layer': 'building',
-      filter: ['==', 'extrude', 'true'],
-      type: 'fill-extrusion',
-      minzoom: 15,
-      paint: {
-        'fill-extrusion-color': '#aaa',
-        'fill-extrusion-height': ['get', 'height'],
-        'fill-extrusion-base': ['get', 'min_height'],
-        'fill-extrusion-opacity': 0.6
-      }
-    });
-  }
+// Add navigation controls
+map.addControl(new maplibregl.NavigationControl());
+
+// Add markers for sample building locations
+classLocations.forEach((loc) => {
+  new maplibregl.Marker({ color: '#8A1538' })
+    .setLngLat(loc.coords)
+    .setPopup(new maplibregl.Popup().setHTML(`<strong>${loc.name}</strong>`))
+    .addTo(map);
 });
 
 map.addControl(new maplibregl.NavigationControl());
